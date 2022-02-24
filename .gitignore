@@ -1,6 +1,7 @@
 main.exe
 DRA.BIN
 ST/
+SERVANT/
 
 *.ld
 *auto.*.txt

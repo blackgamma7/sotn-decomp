@@ -279,6 +279,81 @@ typedef struct
     u16 unk8;
 } Unkstruct10;
 
+typedef struct{
+    char* name;
+    char* command;
+    char* desc;
+    u8 MPCost;
+    u8 unk0x0D;
+    u16 unk0x0E;
+    u16 unk0x10;
+    u16 unk0x12;
+    u16 unk0x14;
+    u16 attribute; //element
+    u16 power; //+x ATK
+    u16 unk0x1A;
+}MagicData;
+
+typedef struct{
+    u8* name;
+    char* desc;
+    u16 atk;
+    u16 def;
+    u16 attrib;
+    u8 itemType;
+    u8 unk0x0F;
+    u8 unk0x10;
+    u8 unk0x11;
+    u8 unk0x12;
+    u8 unk0x13;
+    u8 unk0x14;
+    u8 unk0x15;
+    u8 unk0x16;
+    u8 unk0x17;
+    Unkunion1 unk0x18; //these 2 are wild guesses
+    u8 unk0x1C[8];
+    u16 unk0x24;
+    u16 unk0x26;
+    u16 unk0x28;
+    u16 unk0x2C;
+    u16 unk0x2E;
+    u16 unk0x30;
+    u16 unk0x32;
+}ItemData;
+
+typedef struct{
+    u8* name;
+    char* desc;
+    s16 atk;
+    s16 def;
+    u8 STR,CON,INT,LCK;
+    u16 weakness,resistance,immunity,absorb; //elemental attribs
+    u16 unk0x18;
+    u16 unk0x1A;
+    u16 equipType;
+    u16 unk0x1E;
+}EquipData;
+typedef struct{
+    char* name;
+    char* desc;
+    u16 unk0x8;
+    u16 unk0xc;
+    u32 familiarIndex; //only for familiar cards - 0 otherwise.
+}KeyItemData;
+
+typedef struct{
+    u8* name;
+    u16 HP;
+    u16 ATT;
+    u16 ATTElement;
+    u16 DEF;
+    u16 unk0x0C;
+    u16 weakness,resistance,immunity,absorb;
+    u16 level;
+    u16 EXP;
+    u8 unk0x1A[14]; //likeley related to item drops and graphic indecies.
+    }EnemyData;
+
 // main
 extern void (*D_8003C7DC)(s32);
 extern Unkstruct5* D_8003C704;
@@ -330,6 +405,56 @@ extern s32 D_8003CACC;
 #define EntityCandleDropID 3
 #define EntityCandleHeartDropID 10
 
+#define ELEMENT_NONE	0x0	
+#define ELEMENT_KNOCKBACK	0x1 //Educated guess, applied to most enemy attacks.
+#define ELEMENT_UNK2	0x2	//greater knockback? used by some nameless EnemyData
+#define ELEMENT_SPIKE	0x10	//use only(?) by Spike Breakers
+#define ELEMENT_HIT	0x20	
+#define ELEMENT_CUT	0x40	
+#define ELEMENT_POISON	0x80	
+#define ELEMENT_CURSE	0x100	
+#define ELEMENT_STONE	0x200	
+#define ELEMENT_WATER	0x400	
+#define ELEMENT_DARK	0x800	
+#define ELEMENT_HOLY	0x1000	
+#define ELEMENT_ICE	0x2000	
+#define ELEMENT_THUNDER	0x4000	
+#define ELEMENT_FIRE	0x8000	
+
+#define KEYITEM_GET 1
+#define KEYITEM_ACTIVE 2
+
+#define KEYITEM_BATSOUL	0x0	
+#define KEYITEM_BATFIRE	0x1	
+#define KEYITEM_BATECHO	0x2	
+#define KEYITEM_BATSCREAM	0x3	
+#define KEYITEM_WOLFSOUL	0x4	
+#define KEYITEM_WOLFDASH	0x5	
+#define KEYITEM_WOLFSKILL	0x6	
+#define KEYITEM_MISTSOUL	0x7	
+#define KEYITEM_MISTPOWER	0x8	
+#define KEYITEM_MISTTOXIC	0x9	
+#define KEYITEM_CUBEZOE	0xa	
+#define KEYITEM_SPIRITORB	0xb	
+#define KEYITEM_GRAVBOOTS	0xc	
+#define KEYITEM_LEAPSTONE	0xd	
+#define KEYITEM_SNORKEL	0xe	
+#define KEYITEM_FAESCROLL	0xf	
+#define KEYITEM_KEYSTONE	0x10	
+#define KEYITEM_STATUE	0x11	
+#define KEYITEM_CARDGHOST	0x12	
+#define KEYITEM_CARDBAT	0x13	
+#define KEYITEM_CARDDEMON	0x14	
+#define KEYITEM_CARDSWORD	0x15	
+#define KEYITEM_CARDFAE	0x16	
+#define KEYITEM_CARDSPRITE	0x17	
+#define KEYITEM_CARDNOSE	0x18	
+#define KEYITEM_VLADHEART	0x19	
+#define KEYITEM_VLADRIB	0x1a	
+#define KEYITEM_VLADRING	0x1b	
+#define KEYITEM_VLADTOOTH	0x1c	
+#define KEYITEM_VLADEYE	0x1d	
+
 #define PROGRAM_NO0 0x00
 #define PROGRAM_NO1 0x01
 #define PROGRAM_LIB 0x02
@@ -355,6 +480,7 @@ extern s32 D_8003CACC;
 #define PROGRAM_INVERTEDCASTLE_FLAG 0x20
 
 extern s32 D_8006BB00;
+extern u8 g_castleProgress[2048];
 extern s32 D_8006C374;
 extern s32 g_backbufferX;
 extern s32 g_backbufferY;
@@ -403,7 +529,7 @@ extern s32 g_mapProgramId;
 extern s32 D_800974AC;
 extern s32 D_80097908;
 extern s32 D_8009790C;
-extern u8  D_8009796E;
+extern u8  gKeyItemFlags[30];
 extern u8  D_8009798A;
 extern u8  D_80097A8D;
 extern s32 g_playerLevel;
@@ -416,7 +542,6 @@ extern s32 g_playerHp;
 extern s32 g_playerHpMax;
 extern s32 g_playerMp;
 extern s32 g_playerMpMax;
-extern s32 D_80097C20;
 extern s32 D_80097C24;
 extern s32 g_timeHours;
 extern s32 g_timeMinutes;
@@ -425,6 +550,8 @@ extern s32 D_80097C98;
 
 extern s32 D_800A2438;
 extern Unkstruct10 D_800A2464[];
+extern ItemData gItemData[217];
+extern EquipData gEquipData[90];
 extern const char* c_strALUCARD;
 extern const char* c_strSTR;
 extern const char* c_strCON;
@@ -462,8 +589,9 @@ extern const char *c_strWindow;
 extern const char *c_strTime;
 extern const char* c_strALUCART;
 extern const char *c_strSSword;
-extern s32 D_800A4B04;
-extern s32 D_800A7718;
+extern MagicData gMagicData[28];
+extern KeyItemData gKeyItemData[30];
+extern EnemyData gEnemyData[400];
 extern u16 D_800A7734;
 extern const char *c_strEquip;
 extern const char *c_strSpells;
@@ -505,7 +633,7 @@ extern s16 D_801396EA;
 extern u16 D_801396F4;
 extern s32 D_8013980C;
 extern u8  D_80139810;
-extern s32 D_80139828;
+extern s32 g_potion_timers[16];
 extern s16 D_80139868;
 extern s16 D_80139A70;
 extern u8 D_8013AEEC;
@@ -540,9 +668,9 @@ bool SetNextRoomToLoad(u32 chunkX, u32 chunkY);
 void func_800F1EB0(s32, s32, s32);
 void func_800F2120();
 void func_800F223C(void);
-void func_800F4994(void);
-void func_800F4F48(void);
-void func_800F4FD0(void);
+void ApplyStatMods(void);
+void GetHandsAttack(void);
+void ApplyElementResists(void);
 bool IsAlucart();
 void func_800F53A4(void);
 s32 IsSpriteOutsideDrawArea(s32 x0, s32 x1, s32 y0, s32 y1, MenuContext* a5);
@@ -563,11 +691,11 @@ void func_800FAC30(void);
 s32 func_800FD664(s32 arg0);
 u8 *func_800FD744(s32 arg0);
 u8 *func_800FD760(s32 arg0);
-s32 func_800FD77C(s32 arg0, s32 arg1);
-bool func_800FD7C0(s32, s32);;
+u8* GetItemName(s32 arg0, s32 arg1);
+bool isEquippedWith(s32, s32);;
 void func_800FD874(u16 arg0, s32 arg1);
 void func_800FDE00(void);
-void func_800FF0A0(s32 arg0);
+void StopPotionTimer(s32 arg0);
 void func_80102DEC(s32 arg0);
 void func_80103EAC(void);
 void func_80106590(Entity*);

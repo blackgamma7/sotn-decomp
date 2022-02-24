@@ -662,23 +662,23 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F298C);
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F483C);
 
 s32 IsAlucart(void) {
-    if (func_800FD7C0(0xA8, 0) && func_800FD7C0(0xA7, 0) && func_800FD7C0(0x59, 2))
+    if (isEquippedWith(0xA8, 0) && isEquippedWith(0xA7, 0) && isEquippedWith(0x59, 2))
         return true;
     return false;
 }
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F4994);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", ApplyStatMods);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F4D38);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", GetItemAttack);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F4F48);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", GetHandsAttack);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F4FD0);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", ApplyElementResists);
 
 void func_800F53A4(void) {
-    func_800F4994();
-    func_800F4F48();
-    func_800F4FD0();
+    ApplyStatMods();
+    GetHandsAttack();
+    ApplyElementResists();
 }
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F53D4);
@@ -821,7 +821,7 @@ void DrawMenuInt(s32 digit, s32 x, s32 y, MenuContext* context) {
     } while (digit != 0);
 }
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F6998);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", DrawMenuIntFixed);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F6A48);
 
@@ -895,14 +895,14 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F72BC);
 INCLUDE_ASM("asm/dra/nonmatchings/42398", DrawPauseMenu);
 #else
 void func_800F622C(MenuContext* context);
-void func_800F6998(s32, s32 x, s32 y, MenuContext*, s32);
+void DrawMenuIntFixed(s32, s32 x, s32 y, MenuContext*, s32);
 extern s32 D_8003C9B0;
 extern s32 D_8003C9FC;
-extern s32 D_80097C1C;
+extern s32 player_weapons_attack[2];
 extern s32 D_800A2D68;
 extern s32 D_800A2D6C;
 extern const char* D_800A83AC[];
-extern s32 c_arrExpNext[];
+extern s32 c_arrExpNext[99];
 extern s16 D_8013761C;
 extern s32/*?*/ D_8013763A;
 extern s32 g_menuButtonSettingsConfig;
@@ -998,9 +998,9 @@ void DrawPauseMenu(s32 arg0) {
         DrawMenuStr(c_strTIME, 0xD0, 0xC0, context);
         DrawMenuInt(g_timeHours, 0x108, 0xC0, context);
         DrawMenuChar(0x1A, 0x110, 0xC0, context);
-        func_800F6998(g_timeMinutes, 0x120, 0xC0, context, 2);
+        DrawMenuIntFixed(g_timeMinutes, 0x120, 0xC0, context, 2);
         DrawMenuChar(0x1A, 0x128, 0xC0, context);
-        func_800F6998(g_timeSeconds, 0x138, 0xC0, context, 2);
+        DrawMenuIntFixed(g_timeSeconds, 0x138, 0xC0, context, 2);
     }
 
     phi_s3 = 0xE8;
@@ -1022,7 +1022,7 @@ void DrawPauseMenu(s32 arg0) {
         phi_a1 = phi_s3 + 0x30;
     }
     DrawMenuChar(phi_a0_3, phi_a1, phi_s5, context);
-    DrawMenuInt(D_80097C1C, phi_s3 + 0x4C, phi_s5, context);
+    DrawMenuInt(player_weapons_attack[0], phi_s3 + 0x4C, phi_s5, context);
 
     temp_s1_2 = D_8003C9FC;
     phi_a1_2 = phi_s3 + 0x2C;
@@ -1038,7 +1038,7 @@ void DrawPauseMenu(s32 arg0) {
     }
     DrawMenuChar(phi_a0_4, phi_a1_2, phi_a2, context);
     temp_s0_2 = phi_s3 + 0x4C;
-    DrawMenuInt(D_80097C20, temp_s0_2, phi_s5 + 0xA, context);
+    DrawMenuInt(player_weapons_attack[1], temp_s0_2, phi_s5 + 0xA, context);
     func_800F66BC(D_800A2D6C, phi_s3, phi_s5 + 0x14, context, 1);
     DrawMenuInt(D_80097C24, temp_s0_2, phi_s5 + 0x1A, context);
 
@@ -1279,15 +1279,15 @@ u8 *func_800FD760(s32 context) {
     return phi_v0;
 }
 
-s32 func_800FD77C(s32 context, s32 arg1) {
+u8* GetItemName(s32 context, s32 arg1) {
     if (context == 0) {
-        return *(&D_800A4B04 + (arg1 * 13));
+        return gItemData[arg1].name;
     }
     
-    return *(&D_800A7718 + (arg1 << 3));
+    return gEquipData[arg1].name;;
 }
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FD7C0);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", isEquippedWith);
 
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FD874);
@@ -1369,9 +1369,11 @@ void func_800FDE00(void) {
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FDE20);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE044);
-
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE3A8);
-
+bool isKeyItemActive(u32 ID){
+    return (gKeyItemFlags[ID]&KEYITEM_ACTIVE);
+}
+//INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE3A8);
+//deals with using subweapons
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE3C4);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE728);
@@ -1385,38 +1387,56 @@ void func_800FE8F0(void) {
 }
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE914);
-
+//calculates damage?
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FE97C);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FEE6C);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", TickPotionTimers);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FEEA4);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF064);
-
-void func_800FF0A0(s32 context) {
-    *(&D_80139828 + (context * 1)) = 0;
+#ifndef NON_MATCHING
+INCLUDE_ASM("asm/dra/nonmatchings/42398", MPsub4);
+#else
+s32 MPsub4(s32 x){
+    if (g_playerMp-4<1) return -1;
+    if(x!=0)g_playerMp-=4;
+    return 0;
 }
+#endif
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF0B8);
-
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF0F4);
-
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF110);
+void StopPotionTimer(s32 context) {
+    g_potion_timers[context] = 0;
+}
+void StopPotionTimers(void){
+    s32 i;
+    for(i=0;i<16;i++)StopPotionTimer(i);
+}
+//INCLUDE_ASM("asm/dra/nonmatchings/42398", StopPotionTimers);
+void StartPotionTimer(s32 context) {
+    g_potion_timers[context] = 0x1000;
+}
+//INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF0F4);
+s32 GetPotionTimer(s32 context) {
+    return g_potion_timers[context];
+}
+//INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF110);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF128);
-
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF460);
+s32 func_800FF460(s32 x){
+    if (x==0)x=0;
+    return x;
+}
+//INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF460);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF494);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF60C);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", GetCloakColors);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF6C4);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF708);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF7B8);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", InitPlayerAlucard);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80100750);
 
@@ -2099,7 +2119,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80131EE8);
 
 void func_80131F04(void) {
     D_80139020 = 0;
-    D_8013B694 = D_8013B694 + 1;
+    D_8013B694++;
 }
 
 s32 func_80131F28(void) {
