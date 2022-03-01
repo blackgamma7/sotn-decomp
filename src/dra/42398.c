@@ -373,7 +373,7 @@ block_9:
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800EDD9C);
 #else
-s16 func_800EDD9C(u8 arg0, s32 arg1) {
+s32 func_800EDD9C(u8 arg0, s32 arg1) {
     s32 temp_s2;
     u8 temp_v0;
     u8* phi_s0;
@@ -1440,13 +1440,178 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FF708);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", InitPlayerAlucard);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80100750);
+#ifndef NON_MATCHING
+INCLUDE_ASM("asm/dra/nonmatchings/42398", DrawHudRichter);
+#else
+void DrawHudRichter(void) {
+    POLY_GT4* poly;
+
+    D_80137978 = 0x190;
+    D_8013797C = 0x190;
+    D_801397FC = 0;
+    D_80139008 = 0;
+    D_80137994 = 0;
+    D_8003C744 = NULL;
+    D_80137980 = 50;
+    D_80137984 = 0;
+    D_80137990 = 0;
+    D_8013798C = 0x9C40U / 400U;
+    D_80137988 = 0x9C40U / 400U;
+    D_80137970 = func_800EDD9C(4U, 9);
+    poly = &D_80086FEC[D_80137970];
+
+    func_80107360(poly, 2, 22, 32, 96, 0, 0);
+    poly->tpage = 0x1B;
+    poly->clut = 0x101;
+    poly->pad2 = 0x1EF;
+    poly->pad3 = 0x2000;
+    poly = poly->tag;
+
+    func_80107360(poly, D_80137980 + 216, 22, 32, 96, 32, 0);
+    poly->tpage = 0x1BU;
+    poly->clut = 0x100;
+    poly->pad2 = 0x1EF;
+    poly->pad3 = 0x2000U;
+    poly = poly->tag;
+
+    func_80107360(poly, 4, 112, 9, 3, 64, 89);
+    poly->tpage = 0x1B;
+    poly->clut = 0x105;
+    poly->pad2 = 0x1F0;
+    poly->pad3 = 0x2000;
+    poly = poly->tag;
+
+    func_80107360(poly, D_80137980 + 228, 112, 9, 3, 64, 89);
+    poly->tpage = 0x1BU;
+    poly->clut = 0x103U;
+    poly->pad2 = 0x1F0U;
+    poly->pad3 = 0x2000U;
+    poly->p1 = 0;
+    poly->p2 = 6;
+    poly = poly->tag;
+
+    func_80107360(poly, D_80137980 + 236, 112, 9, 3, 64, 89);
+    poly->tpage = 0x1B;
+    poly->clut = 0x103;
+    poly->pad2 = 0x1F0;
+    poly->pad3 = 0x2000;
+    poly = poly->tag;
+
+    func_80107360(poly, 14, 27, 8, 8, 0, 96);
+    poly->tpage = 0x1BU;
+    poly->clut = 0x103U;
+    poly->pad2 = 0x1F0U;
+    poly->pad3 = 0x2000U;
+    poly = poly->tag;
+
+    func_80107360(poly, 22, 27, 8, 8, 0, 96);
+    poly->tpage = 0x1B;
+    poly->clut = 0x103;
+    poly->pad2 = 0x1F0;
+    poly->pad3 = 0x2000;
+    poly = poly->tag;
+
+    func_80107360(poly, 18, 38, 8, 8, 0, 0);
+    poly->tpage = 0x1BU;
+    poly->clut = 0x102;
+    poly->pad2 = 0x1F0U;
+    poly->pad3 = 0x2000U;
+    poly = poly->tag;
+
+    func_80107360(poly, 33, 20, 64, 24, 64, 40);
+    poly->tpage = 0x1B;
+    poly->clut = 0x103;
+    poly->pad2 = 0x1EF;
+    poly->pad3 = 0x2000;
+    
+    D_80137974 = func_800EDD9C(4, 16);
+    poly = &D_80086FEC[D_80137974];
+    if (poly != 0) {
+        s32 phi_s1 = 0x20;
+        s32 phi_s0 = 0xD8;
+        do {
+            func_80107360(poly, phi_s0, 22, 2, 96, phi_s1, 0);
+            func_801072DC(poly);
+            poly->tpage = 0x1B;
+            poly->clut = 0x100;
+            poly->pad2 = 0x1EE;
+            poly->pad3 = 8;
+            poly->p1 = (rand() & 0x3F) + 1;
+            poly->p2 = 0;
+            poly = poly->tag;
+            phi_s0 += 2;
+            phi_s1 += 2;
+        } while (poly != 0);
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80100B50);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010183C);
 
+#ifndef NON_MATCHING
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010189C);
+#else
+extern u8 D_800A2EE8[];
+extern u8 D_800A2EED;
+extern u8 D_800A2EF8[];
+extern u8 D_800A2EFD;
+extern u8 D_800A2F08[];
+extern u8 D_800A2F18[];
+extern u8 D_800A2F28[];
+extern u8 D_800A2F2D;
+extern u8 D_800A2F38[];
+extern u8 D_800A2F3D;
+extern u16 D_800A2F48[];
+extern u16 D_800A2F64[];
+extern s32 D_8013796C;
+extern s32 D_80137970;
+extern s32 D_80137998;
+
+void func_8010189C() {
+    POLY_GT4* poly;
+    s32 i;
+
+    D_8013B5E8 = 0;
+    D_80137998 = 0;
+    D_8013796C = g_playerHp;
+    if (g_mapProgramId == 0x1F || g_CurrentPlayableCharacter != 0) {
+        DrawHudRichter();
+        return;
+    }
+
+    D_80137970 = func_800EDD9C(4U, 14);
+    poly = &D_80086FEC[D_80137970];
+    i = 0;
+    if (poly != 0) {
+        do {
+            func_80107360(poly, D_800A2EE8[i], D_800A2EF8[i], D_800A2F28[i], D_800A2F38[i], D_800A2F08[i], D_800A2F18[i]);
+            poly->tpage = 0x1F;
+            poly->clut = D_800A2F48[i];
+            poly->pad2 = 0x1F0;
+            poly->pad3 = D_800A2F64[i];
+
+            if (i == 5) {
+                SetPolyRect(poly, D_800A2EED, D_800A2EFD, D_800A2F3D, D_800A2F2D);
+                poly->y0 = poly->y2;
+                poly->x1 = poly->x0;
+                poly->x2 = poly->x3;
+                poly->y3 = poly->y1;
+            }
+
+            if (i == 1) {
+                poly->p1 = 0;
+                poly->p2 = rand() + 8;
+                poly->p3 = (rand() & 7) + 1;
+            }
+
+            poly = poly->tag;
+            i++;
+        } while (poly != 0);
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80101A80);
 
@@ -1532,16 +1697,20 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010715C);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801071CC);
 
-void func_80107250(s32 context, s32 arg1) {
-    func_801071CC(context, arg1, 0);
-    func_801071CC(context, arg1, 1);
-    func_801071CC(context, arg1, 2);
-    func_801071CC(context, arg1, 3);
+void func_80107250(POLY_GT4 *poly, s32 arg1) {
+    func_801071CC(poly, arg1, 0);
+    func_801071CC(poly, arg1, 1);
+    func_801071CC(poly, arg1, 2);
+    func_801071CC(poly, arg1, 3);
 }
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801072BC);
+void func_801072BC(POLY_GT4 *poly) {
+    func_80107250(poly, 0);
+}
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801072DC);
+void func_801072DC(POLY_GT4 *poly) {
+    func_80107250(poly, 0x80);
+}
 
 void func_801072FC(POLY_G4* poly) {
     poly->r0 = 0;
