@@ -710,7 +710,7 @@ s32 func_800FD664(s32 arg0);
 u8 *func_800FD744(s32 arg0);
 u8 *func_800FD760(s32 arg0);
 u8* GetItemName(s32 arg0, s32 arg1);
-bool isEquippedWith(s32, s32);;
+bool isEquippedWith(s32 item, s32 slot);
 void func_800FD874(u16 arg0, s32 arg1);
 void func_800FDE00(void);
 void StopPotionTimer(s32 arg0);

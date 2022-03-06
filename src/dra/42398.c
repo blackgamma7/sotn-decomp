@@ -97,7 +97,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E5498);
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E5584);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E5D30);
-
+//initalize familiar behavior?
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E6218);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E6250);
@@ -1352,7 +1352,7 @@ block_12:
 }
 #endif
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FD9D4);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", GetPlayerMagic);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FDB18);
 
