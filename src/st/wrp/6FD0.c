@@ -134,7 +134,7 @@ void EntityCandle(Entity *entity) {
         AnimateEntity(D_801805B8[temp_s0], entity);
         if (entity->unk44) { // If the candle is destroyed
             Entity *entityDropItem;
-            D_8003C7DC(0x634);
+            g_pfnPlaySfx(0x634);
             entityDropItem = AllocEntity(D_8007D858, D_8007D858 + MaxEntityCount);
             if (entityDropItem != NULL) {
                 SpawnExplosionEntity(EntityExplosionID, entityDropItem);
@@ -156,12 +156,100 @@ INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_801873A0);
 
 INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_80187F1C);
 
-u32 func_801881E8(void) {
-    D_800978B8 = (D_800978B8 * 0x01010101) + 1;
-    return D_800978B8 >> 0x18;
+u32 Random(void) {
+    g_randomNext = (g_randomNext * 0x01010101) + 1;
+    return g_randomNext >> 0x18;
 }
 
-INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_80188218);
+#ifndef NON_MATCHING
+INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", UpdateStageEntities);
+#else
+extern s16 D_80180690[];
+extern u16 D_80194728[];
+
+void UpdateStageEntities(void) {
+    s16 i;
+    Entity* entity;
+    s32* unk;
+
+    for (i = 0; i < 0x20; i++) {
+        if (D_80194728[i]) {
+            D_80194728[i]--;
+        }
+    }
+
+    unk = &D_80097410;
+    if (*unk) {
+        if (!--*unk) {
+            g_pfnFreePolygons(D_80097414);
+        }
+    }
+
+    for (entity = D_800762D8; entity < &D_8007EFD8; entity++) {
+        if (!entity->pfnUpdate)
+            continue;
+            
+        if (entity->initState) {
+            s32 unk34 = entity->unk34;
+            if (unk34 < 0) {
+                u16 posX = entity->posX.Data.high;
+                u16 posY = entity->posY.Data.high;
+                if (unk34 & 0x40000000) {
+                    if ((u16)(posY + 64) > 352 || (u16)(posX + 64) > 384) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if ((u16)(posX + 128) > 512 || (u16)(posY + 128) > 480) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+            }
+            
+            if ((unk34 & 0x02000000)) {
+                s16 posY = entity->posY.Data.high + D_80073092;
+                s16 test = (g_CurrentRoomVSize * 256) + 128;
+                if (posY > test)
+                {
+                    DestroyEntity(entity);
+                    continue;
+                }
+            }
+
+            if (unk34 & 0xF) {
+                entity->palette = D_80180690[(entity->unk49 << 1) | (unk34 & 1)];
+                entity->unk34--;
+                if ((entity->unk34 & 0xF) == 0) {
+                    entity->palette = entity->unk6A;
+                    entity->unk6A = 0;
+                }
+            }
+
+            if (!(unk34 & 0x20000000) || (unk34 & 0x10000000) ||
+                ((u16)(entity->posX.Data.high + 64) <= 384) &&
+                ((u16)(entity->posY.Data.high + 64) <= 352))
+            {
+                if (!entity->unk58 || (entity->unk58--, unk34 & 0x100000)) {
+                    if (!D_800973FC || unk34 & 0x2100 || (unk34 & 0x200 && !(D_8003C8C4 & 3))) {
+                        D_8006C3B8 = entity;
+                        entity->pfnUpdate(entity);
+                        entity->unk44 = 0;
+                        entity->unk48 = 0;
+                    }
+                }
+            }
+        } else {
+            D_8006C3B8 = entity;
+            entity->pfnUpdate(entity);
+            entity->unk44 = 0;
+            entity->unk48 = 0;
+        }
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_80188514);
 
@@ -327,7 +415,7 @@ void DestroyEntity(Entity* item) {
     u32* ptr;
 
     if (item->unk34 & 0x800000) {
-        D_8003C7B4(item->unk64);
+        g_pfnFreePolygons(item->firstPolygonIndex);
     }
 
     ptr = item;
@@ -346,7 +434,7 @@ void DestroyEntityFromIndex(s16 index) {
 
 INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_8018B6E8);
 
-INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", AnimateEntity);
+#include "st/AnimateEntity.h"
 
 INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_8018B7E8);
 
@@ -368,14 +456,14 @@ s32 func_8018B93C(void) {
 
 INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", func_8018B970);
 
-void func_8018B9B4(void) {
-    D_8006C3B8->posX.value = D_8006C3B8->posX.value + D_8006C3B8->accelerationX;
-    D_8006C3B8->posY.value = D_8006C3B8->posY.value + D_8006C3B8->accelerationY;
+void MoveEntity(void) {
+    D_8006C3B8->posX.value += D_8006C3B8->accelerationX;
+    D_8006C3B8->posY.value += D_8006C3B8->accelerationY;
 }
 
 void FallEntity(void) {
     if (D_8006C3B8->accelerationY < FALL_TERMINAL_VELOCITY) {
-        D_8006C3B8->accelerationY = D_8006C3B8->accelerationY + FALL_GRAVITY;
+        D_8006C3B8->accelerationY += FALL_GRAVITY;
     }
 }
 
@@ -583,7 +671,7 @@ INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", CollectHeart);
 void CollectHeart(u16 heartSize) {
     s32* hearts;
 
-    D_8003C7DC(0x67A);
+    g_pfnPlaySfx(0x67A);
     hearts = &g_playerHeart;
     *hearts += c_HeartPrizes[heartSize];
     if (g_playerHeartMax < *hearts) {
@@ -601,7 +689,7 @@ void CollectGold(u16 goldSize) {
     u16 goldSizeIndex;
 
     gold = &g_playerGold;
-    D_8003C7DC(0x6A9);
+    g_pfnPlaySfx(0x6A9);
     goldSizeIndex = goldSize - 2;
     *gold += c_GoldPrizes[goldSizeIndex];
     if (*gold > MAX_GOLD) {
@@ -610,7 +698,7 @@ void CollectGold(u16 goldSize) {
 
     unk = &D_80097410;
     if (*unk) {
-        D_8003C7B4(D_80097414);
+        g_pfnFreePolygons(D_80097414);
         *unk = 0;
     }
 
@@ -626,13 +714,13 @@ INCLUDE_ASM("asm/st/wrp/nonmatchings/6FD0", CollectHeartVessel);
 #else
 void CollectHeartVessel(void) {
     if (g_CurrentPlayableCharacter != PLAYER_ALUCARD) {
-        D_8003C7DC(0x67A);
+        g_pfnPlaySfx(0x67A);
         g_playerHeart += HEART_VESSEL_RICHTER;
         if (g_playerHeartMax < g_playerHeart) {
             g_playerHeart = g_playerHeartMax;
         }
     } else {
-        D_8003C7DC(0x67A);
+        g_pfnPlaySfx(0x67A);
         D_8003C848(HEART_VESSEL_INCREASE, 0x4000);
     }
     DestroyEntity(D_8006C3B8);
@@ -640,7 +728,7 @@ void CollectHeartVessel(void) {
 #endif
 
 void CollectLifeVessel(void) {
-    D_8003C7DC(0x67A);
+    g_pfnPlaySfx(0x67A);
     D_8003C848(LIFE_VESSEL_INCREASE, 0x8000);
     DestroyEntity(D_8006C3B8);
 }
@@ -693,7 +781,7 @@ void func_8018D990(Entity *arg0, s32 renderFlags) {
     s16 left, top, right, bottom;
     u8 colorIntensity;
 
-    poly = &D_80086FEC[arg0->unk64];
+    poly = &D_80086FEC[arg0->firstPolygonIndex];
     
     left = arg0->posX.Data.high - 7;
     right = arg0->posX.Data.high + 7;
@@ -881,7 +969,7 @@ void func_801903C8(Entity *entity) {
 
         entity->initState++;
     } else {
-        func_8018B9B4();
+        MoveEntity();
         if (AnimateEntity(D_8018104C, entity) == 0) {
             DestroyEntity(entity);
         }
@@ -915,8 +1003,8 @@ void func_8019055C(void) {
     Entity *entity;
     s32 i;
 
-    temp_s4 = func_801881E8() & 3;
-    temp_s3 = ((func_801881E8() & 0xF) << 8) - 0x800;
+    temp_s4 = Random() & 3;
+    temp_s3 = ((Random() & 0xF) << 8) - 0x800;
     
     for (i = 0; i < 6; i++) {
         entity = AllocEntity(D_8007D858, D_8007D858 + MaxEntityCount);

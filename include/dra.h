@@ -99,7 +99,9 @@ typedef struct
     u16 unk44;
     s8 hitboxWidth;
     s8 hitboxHeight;
-    s32 unk48;
+    u8 unk48;
+    u8 unk49;
+    s16 unk4A;
     s32 unk4C;
     u16 animationFrameIndex;
     s16 animationFrameDuration;
@@ -109,7 +111,7 @@ typedef struct
     s16 unk5A;
     s32 unk5C;
     s32 unk60;
-    s32 unk64;
+    s32 firstPolygonIndex;
     s16 unk68;
     s16 unk6A;
     u8 unk6C;
@@ -355,16 +357,18 @@ typedef struct{
     }EnemyData;
 
 // main
-extern void (*D_8003C7DC)(s32);
 extern Unkstruct5* D_8003C704;
 extern u16 D_8003C708;
 extern s32 D_8003C730;
 extern s32 D_8003C734;
 extern void (*D_8003C744)(s32, s32);
-extern void (*D_8003C848)(s32, s32);
+extern void (*g_pfnUpdateStageEntities)(void);
 extern RoomHeader* D_8003C784;
-extern void (*D_8003C7B4)(s32);
+extern void (*g_pfnPlaySfx)(s32);
+extern void (*g_pfnFreePolygons)(s32);
 extern Unkstruct5* D_8003C808;
+extern void (*D_8003C848)(s32, s32);
+extern s32 D_8003C8C4;
 extern s32 g_roomCount;
 extern s32 g_CurrentPlayableCharacter;
 extern s32 g_SettingsCloakMode;
@@ -400,6 +404,7 @@ extern s32 D_8003CACC;
 #define FALL_GRAVITY 0x4000
 #define FALL_TERMINAL_VELOCITY 0x60000
 
+#define TOTAL_ENTITY_COUNT 256
 #define MaxEntityCount 32
 #define EntityExplosionID 2
 #define EntityCandleDropID 3
@@ -490,9 +495,9 @@ extern s32 D_80072F2C;
 extern s32 D_80073060;
 extern s32 D_80073080;
 extern u16 D_8007308E;
-extern u16 D_80073092;
-extern s32 g_CurrentRoomHSize;
-extern s32 g_CurrentRoomVSize;
+extern s16 D_80073092;
+extern u16 g_CurrentRoomHSize;
+extern u16 g_CurrentRoomVSize;
 extern s32 D_800730AC;
 extern s32 g_CurrentRoomLeft;
 extern s32 g_CurrentRoomTop;
@@ -502,7 +507,7 @@ extern s32 g_CurrentRoomX;
 extern s32 g_CurrentRoomY;
 extern s32 g_CurrentRoomWidth;
 extern s32 g_CurrentRoomHeight;
-extern Entity D_800733D8[];
+extern Entity D_800733D8[TOTAL_ENTITY_COUNT];
 extern s16 D_800733DA;
 extern s16 D_800733DE;
 extern s16 D_80073404;
@@ -510,6 +515,7 @@ extern s16 D_80073406;
 extern s8  D_80073510;
 extern s8  D_80073511;
 extern s8  D_80073512;
+extern Entity D_800762D8[]; // D_800733D8 + 0x40
 extern Unkstruct8 g_CurrentRoomTileLayout;
 extern Entity D_8007A958[];
 extern Entity D_8007D858[];
@@ -519,7 +525,7 @@ extern void* D_8007EFD8;
 extern POLY_GT4 D_80086FEC[];
 extern s32 playerX;
 extern s32 playerY;
-extern u32 D_800978B8;
+extern u32 g_randomNext;
 extern s32 D_800973FC;
 extern s32 D_80097410;
 extern s32 D_80097414;
@@ -674,7 +680,7 @@ void func_800EDA70(s32 *arg0);
 void func_800EDAE4(void);
 s16 func_800EDC80(u8 arg0, s32 arg1);
 s32 func_800EDD9C(u8 arg0, s32 arg1);
-void func_800EDE78(s32 index);
+void FreePolygons(s32 index);
 s32 func_800F087C(u32, u32);
 bool SetNextRoomToLoad(u32 chunkX, u32 chunkY);
 void func_800F1EB0(s32, s32, s32);

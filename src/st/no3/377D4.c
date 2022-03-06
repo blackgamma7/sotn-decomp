@@ -27,7 +27,7 @@ void EntityCandle(Entity *entity) {
         AnimateEntity(D_80180E50[temp_s0], entity);
         if (entity->unk44) { // If the candle is destroyed
             Entity *entityDropItem;
-            D_8003C7DC(0x634);
+            g_pfnPlaySfx(0x634);
             entityDropItem = AllocEntity(D_8007D858, D_8007D858 + MaxEntityCount);
             if (entityDropItem != NULL) {
                 SpawnExplosionEntity(EntityExplosionID, entityDropItem);
@@ -161,7 +161,7 @@ INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C14B8);
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C184C);
 
-INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C187C);
+INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", UpdateStageEntities);
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C1B78);
 
@@ -221,7 +221,7 @@ void DestroyEntity(Entity* item) {
     u32* ptr;
 
     if (item->unk34 & 0x800000) {
-        D_8003C7B4(item->unk64);
+        g_pfnFreePolygons(item->firstPolygonIndex);
     }
 
     ptr = item;
@@ -240,7 +240,7 @@ void DestroyEntityFromIndex(s16 index) {
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C4D4C);
 
-INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", AnimateEntity);
+#include "st/AnimateEntity.h"
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C4E4C);
 
@@ -250,9 +250,16 @@ INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C4FA0);
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C4FD4);
 
-INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C5018);
+void MoveEntity(void) {
+    D_8006C3B8->posX.value += D_8006C3B8->accelerationX;
+    D_8006C3B8->posY.value += D_8006C3B8->accelerationY;
+}
 
-INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C5048);
+void FallEntity(void) {
+    if (D_8006C3B8->accelerationY < FALL_TERMINAL_VELOCITY) {
+        D_8006C3B8->accelerationY += FALL_GRAVITY;
+    }
+}
 
 INCLUDE_ASM("asm/st/no3/nonmatchings/377D4", func_801C5074);
 

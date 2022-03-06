@@ -251,7 +251,7 @@ void func_800EAD0C(void) {
     func_800EA5E4(6);
     func_800EA5E4(7);
     func_800EA5E4(8);
-    if (g_CurrentPlayableCharacter == 0 && g_mapProgramId != 0x1F) {
+    if (g_CurrentPlayableCharacter == 0 && g_mapProgramId != PROGRAM_ST0) {
         func_800EA5E4(0x17);
     }
 }
@@ -408,18 +408,18 @@ loop_1:
 }
 #endif
 
-void func_800EDE78(s32 index) {
-    POLY_GT4* item = &D_80086FEC[index];
-    if (item != NULL) {
+void FreePolygons(s32 polygonIndex) {
+    POLY_GT4* poly = &D_80086FEC[polygonIndex];
+    if (poly) {
         do {
-            if (item->code == 7) {
-                *(*(s32**)&item->r1) = 0; // does not make any sense?!
-                item->code = 0U;
+            if (poly->code == 7) {
+                *(*(s32**)&poly->r1) = 0; // does not make any sense?!
+                poly->code = 0U;
             }
             else
-                item->code = 0U;
-            item = item->tag;
-        } while (item != NULL);
+                poly->code = 0U;
+            poly = poly->tag;
+        } while (poly);
     }
 }
 
@@ -1576,7 +1576,7 @@ void func_8010189C() {
     D_8013B5E8 = 0;
     D_80137998 = 0;
     D_8013796C = g_playerHp;
-    if (g_mapProgramId == 0x1F || g_CurrentPlayableCharacter != 0) {
+    if (g_mapProgramId == PROGRAM_ST0 || g_CurrentPlayableCharacter != 0) {
         DrawHudRichter();
         return;
     }
@@ -1669,15 +1669,15 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105408);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105428);
 
-void func_80106590(Entity* item) {
+void func_80106590(Entity* poly) {
     int i, length;
     u32* ptr;
 
-    if (item->unk34 & 0x800000) {
-        func_800EDE78(item->unk64);
+    if (poly->unk34 & 0x800000) {
+        FreePolygons(poly->firstPolygonIndex);
     }
 
-    ptr = item;
+    ptr = poly;
     length = sizeof(Entity) / sizeof(u32);
     for (i = 0; i < length; i++)
         *ptr++ = 0;
@@ -1685,7 +1685,7 @@ void func_80106590(Entity* item) {
 
 void func_801065F4(s16 startIndex) {
     Entity* pItem;
-    for (pItem = &D_800733D8[startIndex]; pItem < &D_8007EFD8; pItem++)
+    for (pItem = &D_800733D8[startIndex]; pItem < D_800733D8 + TOTAL_ENTITY_COUNT; pItem++)
         func_80106590(pItem);
 }
 
@@ -1763,8 +1763,8 @@ void func_80107360(POLY_GT4* poly, s32 x, s32 y, s32 width, s32 height, s8 u, s8
 #endif
 
 void func_801073C0(void) {
-    func_800195C8(0);
-    func_800199D0(0);
+    CdReadyCallback(NULL);
+    CdDataCallback(NULL);
 }
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801073E8);
@@ -2476,9 +2476,9 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80134678);
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80134714);
 
 #ifndef NON_MATCHING
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801347F8);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", PlaySfx);
 #else
-void func_801347F8(s32 arg0) {
+void PlaySfx(s32 arg0) {
     if (D_8013AEEC == 0)
         return;
 

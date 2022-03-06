@@ -3,10 +3,9 @@
 extern PfnEntityUpdate PfnEntityUpdates[];
 extern bool g_isSecretStairsButtonPressed;
 
-u32 func_801B186C();
 void func_801B3BDC(u16 objectId, Entity *source, Entity *entity);
 s32 func_801B4C78();
-void func_801B4CBC();
+void MoveEntity();
 void func_801B5794(u8);
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801A7D64);
@@ -135,7 +134,7 @@ void EntitySecretStairsEmitter(Entity* entity) {
         break;
     case 1:
         if (g_isSecretStairsButtonPressed) {
-            D_8003C7DC(0x644);
+            g_pfnPlaySfx(0x644);
             entity->initState++;
         }
         break;
@@ -186,18 +185,18 @@ void EntityDraculaGlass(Entity* entity) {
             s16 radians;
             s32 speed;
             entity->animationFrame = 0x5C;
-            speed = (func_801B186C() & 0x1F) + 0x10;
-            radians = (func_801B186C() * 6) + 0x900;
+            speed = (Random() & 0x1F) + 0x10;
+            radians = (Random() * 6) + 0x900;
             entity->accelerationX = speed * func_80016D68(radians);
             entity->accelerationY = speed * rsin(radians);
             func_801B5794(3);
         }
     case 1:
-        func_801B4CBC();
+        MoveEntity();
         entity->unk1E += 0x20;
         entity->accelerationY += 0x2000;
         if (entity->posY.Data.high >= 205) {
-            D_8003C7DC(0x68B);
+            g_pfnPlaySfx(0x68B);
             entity->posY.Data.high = 204;
             func_801B5794(2);
         }
@@ -217,7 +216,7 @@ void EntityDraculaGlass(Entity* entity) {
         }
         break;
     case 3:
-        func_801B4CBC();
+        MoveEntity();
         entity->accelerationY += 0x2000;
         if (entity->posY.Data.high >= 205) {
             DestroyEntity(entity);
@@ -273,12 +272,100 @@ INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B11E8);
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B1298);
 
-u32 func_801B186C(void) {
-    D_800978B8 = (D_800978B8 * 0x01010101) + 1;
-    return D_800978B8 >> 0x18;
+u32 Random(void) {
+    g_randomNext = (g_randomNext * 0x01010101) + 1;
+    return g_randomNext >> 0x18;
 }
 
-INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B189C);
+#ifndef NON_MATCHING
+INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", UpdateStageEntities);
+#else
+extern s16 D_801815EC[];
+extern u16 D_801C2584[];
+
+void UpdateStageEntities(void) {
+    s16 i;
+    Entity* entity;
+    s32* unk;
+
+    for (i = 0; i < 0x20; i++) {
+        if (D_801C2584[i]) {
+            D_801C2584[i]--;
+        }
+    }
+
+    unk = &D_80097410;
+    if (*unk) {
+        if (!--*unk) {
+            D_8003C7B4(D_80097414);
+        }
+    }
+
+    for (entity = D_800762D8; entity < &D_8007EFD8; entity++) {
+        if (!entity->pfnUpdate)
+            continue;
+            
+        if (entity->initState) {
+            s32 unk34 = entity->unk34;
+            if (unk34 < 0) {
+                u16 posX = entity->posX.Data.high;
+                u16 posY = entity->posY.Data.high;
+                if (unk34 & 0x40000000) {
+                    if ((u16)(posY + 64) > 352 || (u16)(posX + 64) > 384) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if ((u16)(posX + 128) > 512 || (u16)(posY + 128) > 480) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+            }
+            
+            if ((unk34 & 0x02000000)) {
+                s16 posY = entity->posY.Data.high + D_80073092;
+                s16 test = (g_CurrentRoomVSize * 256) + 128;
+                if (posY > test)
+                {
+                    DestroyEntity(entity);
+                    continue;
+                }
+            }
+
+            if (unk34 & 0xF) {
+                entity->palette = D_801815EC[(entity->unk49 << 1) | (unk34 & 1)];
+                entity->unk34--;
+                if ((entity->unk34 & 0xF) == 0) {
+                    entity->palette = entity->unk6A;
+                    entity->unk6A = 0;
+                }
+            }
+
+            if (!(unk34 & 0x20000000) || (unk34 & 0x10000000) ||
+                ((u16)(entity->posX.Data.high + 64) <= 384) &&
+                ((u16)(entity->posY.Data.high + 64) <= 352))
+            {
+                if (!entity->unk58 || (entity->unk58--, unk34 & 0x100000)) {
+                    if (!D_800973FC || unk34 & 0x2100 || (unk34 & 0x200 && !(D_8003C8C4 & 3))) {
+                        D_8006C3B8 = entity;
+                        entity->pfnUpdate(entity);
+                        entity->unk44 = 0;
+                        entity->unk48 = 0;
+                    }
+                }
+            }
+        } else {
+            D_8006C3B8 = entity;
+            entity->pfnUpdate(entity);
+            entity->unk44 = 0;
+            entity->unk48 = 0;
+        }
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B1B98);
 
@@ -335,7 +422,7 @@ void DestroyEntity(Entity* item) {
     u32* ptr;
 
     if (item->unk34 & 0x800000) {
-        D_8003C7B4(item->unk64);
+        g_pfnFreePolygons(item->firstPolygonIndex);
     }
 
     ptr = item;
@@ -348,8 +435,7 @@ INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B4974);
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B49F0);
 
-INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", AnimateEntity);
-s32 AnimateEntity(u8 *arg0, Entity *entity);
+#include "st/AnimateEntity.h"
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B4AF0);
 
@@ -371,14 +457,14 @@ s32 func_801B4C44(void) {
 
 INCLUDE_ASM("asm/st/st0/nonmatchings/27D64", func_801B4C78);
 
-void func_801B4CBC(void) {
+void MoveEntity(void) {
     D_8006C3B8->posX.value += D_8006C3B8->accelerationX;
     D_8006C3B8->posY.value += D_8006C3B8->accelerationY;
 }
 
 void FallEntity(void) {
     if (D_8006C3B8->accelerationY < FALL_TERMINAL_VELOCITY) {
-        D_8006C3B8->accelerationY = D_8006C3B8->accelerationY + FALL_GRAVITY;
+        D_8006C3B8->accelerationY += FALL_GRAVITY;
     }
 }
 

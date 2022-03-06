@@ -1,49 +1,33 @@
 #include "stage.h"
 
-#ifndef FIX_MAD
+// OFFSET FIXED
 extern void (*D_8003C6B0)(s32);
 extern void (*D_8003C6D8)(s32);
+extern s32 g_pfnLoadObjLayout; // It's 8003C8C4!
 extern Entity* D_8006C26C;
 extern u16 D_80072B3E;
 extern u16 D_80072B42;
+extern u16 D_80072B58;
 extern s16 D_80072E8A;
 extern s16 D_80072E8E;
 extern Entity D_80072E88[];
 extern Entity D_8007D308[];
 extern Entity D_8007E9CC;
+extern Entity* D_8007EA88;
 extern u16 D_80096EB8;
+extern s32 D_80096EC0;
+extern s32 D_80096EC4;
 extern u32 D_80097364;
 extern u8 D_8009741A;
 extern Entity D_80075D88[];
+extern s32 D_80096EAC;
+
+// TODO FIX
 extern s32 D_80096ED8[];
 extern s32 D_800973B4;
 extern POLY_GT4 D_800973B8[];
 
-#else
-extern Entity D_80075D88[];
-extern s32 D_80096ED8[];
-extern s32 D_800973B4;
-extern POLY_GT4 D_800973B8[];
-
-#define D_8003C6B0 D_8003C7B4
-#define D_8003C6D8 D_8003C7DC
-#define D_8006C26C D_8006C3B8
-#define D_80072E8A D_800733DA
-#define D_80072E8E D_800733DE
-#define D_80072E88 D_800733D8
-#define D_8007D308 D_8007D858
-#define D_8007E9CC D_8007EF1C
-#define D_80096EB8 D_80097408
-#define D_80097364 D_800978B8
-#define D_80072B3E D_8007308E
-#define D_80072B42 D_80073092
-#define D_80075D88 D_80075D88 // TODO
-#define D_80096ED8 D_80096ED8 // TODO
-#define D_800973B4 D_800973B4 // TODO
-#define D_800973B8 D_800973B8 // TODO
-#define D_8009741A D_8009796E
-#endif
-
+// ST/MAD
 extern u16 D_801804F0[];
 extern u8* D_80180644[];
 extern u8 D_80180664[];
@@ -208,12 +192,100 @@ void EntityCandle(Entity *entity) {
 }
 #endif
 
-u32 func_8018E964(void) {
+u32 Random(void) {
     D_80097364 = (D_80097364 * 0x01010101) + 1;
     return D_80097364 >> 0x18;
 }
 
-INCLUDE_ASM("asm/st/mad/nonmatchings/D8C8", func_8018E994);
+#ifndef NON_MATCHING
+INCLUDE_ASM("asm/st/mad/nonmatchings/D8C8", UpdateStageEntities);
+#else
+extern s16 D_801806B4[];
+extern u16 D_80199E54[];
+
+void UpdateStageEntities(void) {
+    s16 i;
+    Entity* entity;
+    s32* unk;
+
+    for (i = 0; i < 0x20; i++) {
+        if (D_80199E54[i]) {
+            D_80199E54[i]--;
+        }
+    }
+
+    unk = &D_80096EC0;
+    if (*unk) {
+        if (!--*unk) {
+            D_8003C6B0(D_80096EC4);
+        }
+    }
+
+    for (entity = D_80075D88; entity < &D_8007EA88; entity++) {
+        if (!entity->pfnUpdate)
+            continue;
+            
+        if (entity->initState) {
+            s32 unk34 = entity->unk34;
+            if (unk34 < 0) {
+                u16 posX = entity->posX.Data.high;
+                u16 posY = entity->posY.Data.high;
+                if (unk34 & 0x40000000) {
+                    if ((u16)(posY + 64) > 352 || (u16)(posX + 64) > 384) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if ((u16)(posX + 128) > 512 || (u16)(posY + 128) > 480) {
+                        DestroyEntity(entity);
+                        continue;
+                    }
+                }
+            }
+            
+            if ((unk34 & 0x02000000)) {
+                s16 posY = entity->posY.Data.high + D_80072B42;
+                s16 test = (D_80072B58 * 256) + 128;
+                if (posY > test)
+                {
+                    DestroyEntity(entity);
+                    continue;
+                }
+            }
+
+            if (unk34 & 0xF) {
+                entity->palette = D_801806B4[(entity->unk49 << 1) | (unk34 & 1)];
+                entity->unk34--;
+                if ((entity->unk34 & 0xF) == 0) {
+                    entity->palette = entity->unk6A;
+                    entity->unk6A = 0;
+                }
+            }
+
+            if (!(unk34 & 0x20000000) || (unk34 & 0x10000000) ||
+                ((u16)(entity->posX.Data.high + 64) <= 384) &&
+                ((u16)(entity->posY.Data.high + 64) <= 352))
+            {
+                if (!entity->unk58 || (entity->unk58--, unk34 & 0x100000)) {
+                    if (!D_80096EAC || unk34 & 0x2100 || (unk34 & 0x200 && !(g_pfnLoadObjLayout & 3))) {
+                        D_8006C26C = entity;
+                        entity->pfnUpdate(entity);
+                        entity->unk44 = 0;
+                        entity->unk48 = 0;
+                    }
+                }
+            }
+        } else {
+            D_8006C26C = entity;
+            entity->pfnUpdate(entity);
+            entity->unk44 = 0;
+            entity->unk48 = 0;
+        }
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/st/mad/nonmatchings/D8C8", func_8018EC90);
 
@@ -364,7 +436,7 @@ void LoadObjLayout(s32 objLayoutId) {
     s1 = &D_80072B34;
     if (*pObjLayoutStart != 0xFFFE) {
         D_801997D8 = pObjLayoutStart + 1;
-        phi_a0 = func_8018E964() & 0xFF;
+        phi_a0 = Random() & 0xFF;
         
         for (phi_a1 = 0; ; phi_a1++)
         {
@@ -442,7 +514,7 @@ void DestroyEntity(Entity* item) {
     u32* ptr;
 
     if (item->unk34 & 0x800000) {
-        D_8003C6B0(item->unk64);
+        D_8003C6B0(item->firstPolygonIndex);
     }
 
     ptr = item;
@@ -472,42 +544,7 @@ void func_80191E24(Entity *entity) {
 }
 #endif
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/st/mad/nonmatchings/D8C8", AnimateEntity);
-#else
-s32 AnimateEntity(u8 *arg0, Entity *arg1) {
-    u8 *phi_a2;
-    s32 flags;
-
-    phi_a2 = arg0 + (arg1->animationFrameIndex * 2 & 0xFFFF);
-    flags = 0;
-    if (arg1->animationFrameDuration == 0) {
-        if (*phi_a2) {
-            flags = 0x80;
-            if (*phi_a2 == 0xFF) {
-                return 0;
-            }
-
-            arg1->animationFrameDuration = *phi_a2++;
-            arg1->animationFrameIndex++;
-            arg1->animationFrame = *phi_a2++;
-            goto block_6;
-        }
-
-        arg1->animationFrameIndex = 0;
-        arg1->animationFrameDuration = 0;
-        arg1->animationFrameDuration = arg0[0];
-        arg1->animationFrameIndex++;
-        arg1->animationFrame = arg0[1];
-        return 0;
-    }
-
-block_6:
-    arg1->animationFrameDuration--;
-    arg1->animationFrame = phi_a2[-1];
-    return flags | 1;
-}
-#endif
+#include "st/AnimateEntity.h"
 
 INCLUDE_ASM("asm/st/mad/nonmatchings/D8C8", func_80191F24);
 
@@ -541,14 +578,14 @@ s32 func_801920AC(void) {
 }
 #endif
 
-void func_801920F0(void) {
-    D_8006C26C->posX.value = D_8006C26C->posX.value + D_8006C26C->accelerationX;
-    D_8006C26C->posY.value = D_8006C26C->posY.value + D_8006C26C->accelerationY;
+void MoveEntity(void) {
+    D_8006C26C->posX.value += D_8006C26C->accelerationX;
+    D_8006C26C->posY.value += D_8006C26C->accelerationY;
 }
 
 void FallEntity(void) {
     if (D_8006C26C->accelerationY < FALL_TERMINAL_VELOCITY) {
-        D_8006C26C->accelerationY = D_8006C26C->accelerationY + FALL_GRAVITY;
+        D_8006C26C->accelerationY += FALL_GRAVITY;
     }
 }
 
