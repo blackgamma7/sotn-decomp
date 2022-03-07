@@ -97,8 +97,8 @@ typedef struct
     s16 unk40;
     s16 unk42;
     u16 unk44;
-    s8 hitboxWidth;
-    s8 hitboxHeight;
+    u8 hitboxWidth;
+    u8 hitboxHeight;
     u8 unk48;
     u8 unk49;
     s16 unk4A;
@@ -157,7 +157,7 @@ typedef struct
 {
     u16 posX;
     u16 posY;
-    u16 unk4;
+    u16 flags;
     u16 unk6;
     u16 unk8;
 } ObjectInit;
@@ -520,6 +520,7 @@ extern Unkstruct8 g_CurrentRoomTileLayout;
 extern Entity D_8007A958[];
 extern Entity D_8007D858[];
 extern u16 D_80097408;
+extern s32 D_80097428[];
 extern Entity D_8007EF1C;
 extern void* D_8007EFD8;
 extern POLY_GT4 D_80086FEC[];
