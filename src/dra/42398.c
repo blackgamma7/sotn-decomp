@@ -26,7 +26,12 @@ void func_800E2398() {
 }
 #endif
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E2438);
+void func_800E2438(s32 arg0) {
+    while (PadRead(0))
+        func_800E2398(arg0);
+    while (PadRead(0) == 0)
+        func_800E2398(arg0);
+}
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E249C);
 
@@ -1676,15 +1681,15 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105408);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105428);
 
-void EraseEntity(Entity* poly) {
+void EraseEntity(Entity* entity) {
     int i, length;
     u32* ptr;
 
-    if (poly->unk34 & 0x800000) {
-        FreePolygons(poly->firstPolygonIndex);
+    if (entity->unk34 & 0x800000) {
+        FreePolygons(entity->firstPolygonIndex);
     }
 
-    ptr = poly;
+    ptr = entity;
     length = sizeof(Entity) / sizeof(u32);
     for (i = 0; i < length; i++)
         *ptr++ = 0;
@@ -1800,7 +1805,13 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801080DC);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010838C);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801083BC);
+void func_801083BC(void)
+{
+    D_8006C398 = 1;
+    D_8006BAFC = 25;
+    D_8013AE9C = 10;
+    D_800ACC64 = 0;
+}
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_801083F0);
 
@@ -1824,7 +1835,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010A3F0);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010A4A4);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010A5BC);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", UpdateEntityAlucard);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_8010BF64);
 
