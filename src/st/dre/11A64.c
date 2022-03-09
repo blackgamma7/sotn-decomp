@@ -39,7 +39,7 @@ INCLUDE_ASM("asm/st/dre/nonmatchings/11A64", func_80194C50);
 INCLUDE_ASM("asm/st/dre/nonmatchings/11A64", func_80194F14);
 
 INCLUDE_ASM("asm/st/dre/nonmatchings/11A64", func_80194FF4);
-
+//succubus dialouge/behavior?
 INCLUDE_ASM("asm/st/dre/nonmatchings/11A64", func_801950F8);
 
 INCLUDE_ASM("asm/st/dre/nonmatchings/11A64", func_801961DC);

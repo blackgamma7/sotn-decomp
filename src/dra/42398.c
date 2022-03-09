@@ -127,7 +127,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E7D4C);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E7E08);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E81FC);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", LoadFile);
 
 void func_800E8D24(void) {
     s8* phi_v1;
@@ -222,13 +222,13 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E9880);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E9B18);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E9BA4);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", GetSaveGameIconPallette);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E9BDC);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", getSaveGameIconBitmap);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800E9C14);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", WriteSaveGame);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800EA2B0);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", LoadSaveGame);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800EA48C);
 
@@ -495,7 +495,7 @@ loop_3:
             pRoom->right >= chunkX && pRoom->bottom >= chunkY) {
             pRoomLoad = &pRoom->load;
             if (pRoom->load.tilesetId == 0xFF) {
-                if (D_800A2464[pRoom->load.tileLayoutId].programId == 0x1F) {
+                if (D_800A245C[pRoom->load.tileLayoutId].programId == 0x1F) {
                     return false;
                 }
             }
@@ -510,8 +510,15 @@ loop_3:
 #endif
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F0CD8);
-
+#ifndef
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F1424);
+#else
+void func_800F1424(void){
+    if(g_pads[1].tapped&PAD_R1) D_800730A0.value^=2;
+    if(g_pads[1].tapped&PAD_L1) D_800730A0.value^=2;
+    if((g_pads[1].tapped&PAD_L2)&&(D_800730DC)) D_800730F4.value^=1;
+}
+#endif
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F14CC);
 
@@ -525,7 +532,7 @@ s32 func_800F16D0(void) {
     else if (D_80097C98 == 6)
         return PROGRAM_LIB;
     else {
-        s32 programId = D_800A2464[D_8006C374].programId;
+        s32 programId = D_800A245C[D_8006C374].programId;
         if (g_mapProgramId & PROGRAM_INVERTEDCASTLE_FLAG) {
             programId ^= PROGRAM_INVERTEDCASTLE_FLAG;
         }
@@ -677,7 +684,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", GetHandsAttack);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", ApplyElementResists);
 
-void func_800F53A4(void) {
+void updatePlayerStats(void) {
     ApplyStatMods();
     GetHandsAttack();
     ApplyElementResists();
@@ -827,7 +834,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", DrawMenuIntFixed);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F6A48);
 
-INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F6A70);
+INCLUDE_ASM("asm/dra/nonmatchings/42398", DrawSettingsJosephCloak);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800F6BEC);
 
@@ -940,7 +947,7 @@ void DrawPauseMenu(s32 arg0) {
     s32 phi_s5_3;
 
     context = &D_8013761C + (arg0 * 15);
-    func_800F53A4();
+    updatePlayerStats();
     if (arg0 == 1) {
         func_800F622C(context);
 
@@ -1255,7 +1262,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_800FD5BC);
 
 s32 func_800FD664(s32 context) {
     s32 phi_a0 = context;
-    if ((g_mapProgramId & 0x20) != 0) {
+    if ((g_mapProgramId & PROGRAM_INVERTEDCASTLE_FLAG) != 0) {
         phi_a0 <<= 1;
     }
     return phi_a0;
@@ -1286,7 +1293,7 @@ u8* GetItemName(s32 context, s32 arg1) {
         return gItemData[arg1].name;
     }
     
-    return gEquipData[arg1].name;;
+    return gEquipData[arg1].name;
 }
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", isEquippedWith);
@@ -1669,7 +1676,7 @@ INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105408);
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80105428);
 
-void func_80106590(Entity* poly) {
+void EraseEntity(Entity* poly) {
     int i, length;
     u32* ptr;
 
@@ -1683,10 +1690,10 @@ void func_80106590(Entity* poly) {
         *ptr++ = 0;
 }
 
-void func_801065F4(s16 startIndex) {
+void EraseEntites(s16 startIndex) {
     Entity* pItem;
     for (pItem = &D_800733D8[startIndex]; pItem < D_800733D8 + TOTAL_ENTITY_COUNT; pItem++)
-        func_80106590(pItem);
+        EraseEntity(pItem);
 }
 
 INCLUDE_ASM("asm/dra/nonmatchings/42398", func_80106670);

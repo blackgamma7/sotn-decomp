@@ -94,8 +94,8 @@ typedef struct
     s16 unk3A;
     s16 unk3C;
     s16 unk3E;
-    s16 unk40;
-    s16 unk42;
+    s16 unk40; //damge on contact?
+    s16 unk42; //element?
     u16 unk44;
     u8 hitboxWidth;
     u8 hitboxHeight;
@@ -129,7 +129,7 @@ typedef struct
     s16 unk86;
     s16 unk88;
     s16 unk8A;
-    s32 unk8C;
+    s32 unk8C; //entity link?
     s32 unk90;
     u8 unk94;
     u8 unk95;
@@ -274,11 +274,11 @@ typedef struct
 
 typedef struct
 {
-    u16 programId;
+    u16 unk0;
     u16 unk2;
     u16 unk4;
     u16 unk6;
-    u16 unk8;
+    u16 programId;
 } Unkstruct10;
 
 typedef struct{
@@ -295,6 +295,22 @@ typedef struct{
     u16 power; //+x ATK
     u16 unk0x1A;
 }MagicData;
+
+typedef struct{
+    u16 power;
+    u16 heartCost;
+    u16 element; //usually Holy
+    u8 unk0x06;
+    u8 unk0x07;
+    u16 unk0x08;
+    u8 unk0x0A;
+    u8 unk0x0B;
+    u16 unk0x0C;
+    u16 unk0x0E;
+    u8 unk0x10;
+    u8 unk0x11;
+    u16 unk0x12;
+}SubWeaponData;
 
 typedef struct{
     u8* name;
@@ -373,6 +389,7 @@ extern s32 g_roomCount;
 extern s32 g_CurrentPlayableCharacter;
 extern s32 g_SettingsCloakMode;
 extern s32 g_SettingsSoundMode;
+extern u32 D_8003CA28[32]; //timestamps?
 extern s32 D_8003CACC;
 
 // dra
@@ -413,7 +430,7 @@ extern s32 D_8003CACC;
 #define ELEMENT_NONE	0x0	
 #define ELEMENT_KNOCKBACK	0x1 //Educated guess, applied to most enemy attacks.
 #define ELEMENT_UNK2	0x2	//greater knockback? used by some nameless EnemyData
-#define ELEMENT_SPIKE	0x10	//use only(?) by Spike Breakers
+#define ELEMENT_SPIKE	0x10	//used only(?) by Spike Breakers
 #define ELEMENT_HIT	0x20	
 #define ELEMENT_CUT	0x40	
 #define ELEMENT_POISON	0x80	
@@ -496,6 +513,7 @@ extern s32 D_80073060;
 extern s32 D_80073080;
 extern u16 D_8007308E;
 extern s16 D_80073092;
+extern Unkunion1 D_800730A0;
 extern u16 g_CurrentRoomHSize;
 extern u16 g_CurrentRoomVSize;
 extern s32 D_800730AC;
@@ -510,6 +528,7 @@ extern s32 g_CurrentRoomHeight;
 extern Entity D_800733D8[TOTAL_ENTITY_COUNT];
 extern s16 D_800733DA;
 extern s16 D_800733DE;
+extern Unkunion1 D_800730F4;
 extern s16 D_80073404;
 extern s16 D_80073406;
 extern s8  D_80073510;
@@ -523,7 +542,7 @@ extern u16 D_80097408;
 extern s32 D_80097428[];
 extern Entity D_8007EF1C;
 extern void* D_8007EFD8;
-extern POLY_GT4 D_80086FEC[];
+extern POLY_GT4 D_80086FEC[0x500];
 extern s32 playerX;
 extern s32 playerY;
 extern u32 g_randomNext;
@@ -555,8 +574,29 @@ extern s32 g_timeMinutes;
 extern s32 g_timeSeconds;
 extern s32 D_80097C98;
 
+extern u16 SaveGameIconPalettes[16][16];
+extern u8 g_saveGameIconBitmap0[384]; //could be 2D array.
+extern u8 g_saveGameIconBitmap1[384];
+extern u8 g_saveGameIconBitmap2[384];
+extern u8 g_saveGameIconBitmap3[384];
+extern u8 g_saveGameIconBitmap4[384];
+extern u8 g_saveGameIconBitmap5[384];
+extern u8 g_saveGameIconBitmap6[384];
+extern u8 g_saveGameIconBitmap7[384];
+extern u8 g_saveGameIconBitmap8[384];
+extern u8 g_saveGameIconBitmap9[384];
+extern u8 g_saveGameIconBitmapA[384];
+extern u8 g_saveGameIconBitmapB[384];
+extern u8 g_saveGameIconBitmapC[384];
+extern u8 g_saveGameIconBitmapD[384];
+extern u8 g_saveGameIconBitmapE[384];
+extern u8 g_saveGameIconBitmapF[384];
+extern u8* g_saveGameIconBitmapsP[16];
 extern s32 D_800A2438;
-extern Unkstruct10 D_800A2464[];
+extern Unkstruct10 D_800A245C[131];
+extern s32 D_800A2D98[7][3];
+extern s32 D_800A2FBC[10][2]; // cloak colors?{item index, pallette id}
+extern u8 D_800ACFB4[14][4];
 extern ItemData gItemData[217];
 extern EquipData gEquipData[90];
 extern const char* c_strALUCARD;
@@ -597,6 +637,7 @@ extern const char *c_strTime;
 extern const char* c_strALUCART;
 extern const char *c_strSSword;
 extern MagicData gMagicData[28];
+extern SubWeaponData gSubWeaponData[13];
 extern KeyItemData gKeyItemData[30];
 extern EnemyData gEnemyData[400];
 extern u16 D_800A7734;
@@ -672,6 +713,7 @@ extern ImgSrc* g_imgUnk8013C200;
 extern ImgSrc* g_imgUnk8013C270;
 
 void func_800E4124(s32 arg0);
+void LoadFile(u32 index, s32 filetype);
 void func_800E8D24(void);
 void func_800E8DF0(void);
 void func_800E92E4(void);
@@ -691,7 +733,7 @@ void ApplyStatMods(void);
 void GetHandsAttack(void);
 void ApplyElementResists(void);
 bool IsAlucart();
-void func_800F53A4(void);
+void updatePlayerStats(void);
 s32 IsSpriteOutsideDrawArea(s32 x0, s32 x1, s32 y0, s32 y1, MenuContext* a5);
 bool ScissorSprite(SPRT* arg0, MenuContext* arg1);
 void func_800F5904(void*, s32 x, s32 y, s32 w, u32 h, s32 u, s32 v, s32 unk1, s32 unk2, bool disableTexShade, s32 unk4);
@@ -717,8 +759,8 @@ void func_800FDE00(void);
 void StopPotionTimer(s32 arg0);
 void func_80102DEC(s32 arg0);
 void func_80103EAC(void);
-void func_80106590(Entity*);
-void func_801065F4(s16 startIndex);
+void EraseEntity(Entity*);
+void EraseEntites(s16 startIndex);
 void func_801071CC(POLY_GT4 *poly, u8, s32);
 void func_80107250(POLY_GT4 *poly, s32 arg1);
 void func_80107360(POLY_GT4 *poly, s32 x, s32 y, s32 width, s32 height, u8 u, u8 v);
