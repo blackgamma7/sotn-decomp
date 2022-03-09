@@ -162,29 +162,6 @@ typedef struct
     u16 unk8;
 } ObjectInit;
 
-typedef struct
-{
-    s16 unk0;
-    s16 unk2;
-    u16 unk4;
-    u16 unk6;
-    u16 unk8;
-    s16 unkA;
-    u16 unkC;
-    s16 unkE;
-    s16 unk10;
-    s16 unk12;
-    s16 unk14;
-    s16 unk16;
-    s16 unk18;
-    s16 unk1A;
-    s16 unk1C;
-    s16 unk1E;
-    s16 unk20;
-    u8 hitboxWidth;
-    u8 hitboxHeight;
-    s32 unk24;
-} Unkstruct5;
 
 typedef struct
 {
@@ -351,6 +328,7 @@ typedef struct{
     u16 equipType;
     u16 unk0x1E;
 }EquipData;
+
 typedef struct{
     char* name;
     char* desc;
@@ -369,11 +347,17 @@ typedef struct{
     u16 weakness,resistance,immunity,absorb;
     u16 level;
     u16 EXP;
-    u8 unk0x1A[14]; //likeley related to item drops and graphic indecies.
-    }EnemyData;
+    s16 unk1A; //these 4 may deal with item drops.
+    s16 unk1C;
+    s16 unk1E;
+    s16 unk20;
+    u8 hitboxWidth;
+    u8 hitboxHeight;
+    s32 unk24;
+}EnemyData;
 
 // main
-extern Unkstruct5* D_8003C704;
+extern u32 D_8003C704;
 extern u16 D_8003C708;
 extern s32 D_8003C730;
 extern s32 D_8003C734;
@@ -382,7 +366,7 @@ extern void (*g_pfnUpdateStageEntities)(void);
 extern RoomHeader* D_8003C784;
 extern void (*g_pfnPlaySfx)(s32);
 extern void (*g_pfnFreePolygons)(s32);
-extern Unkstruct5* D_8003C808;
+extern EnemyData* D_8003C808;
 extern void (*D_8003C848)(s32, s32);
 extern s32 D_8003C8C4;
 extern s32 g_roomCount;

@@ -754,7 +754,7 @@ void func_80192C0C(u16 arg0, u16 arg1) {
 
 void InitializeEntity(u16 *arg0) {
     u16 temp_v1;
-    Unkstruct5 *temp_v0;
+    EnemyData *temp_v0;
 
     D_8006C26C->animationSet = *arg0++;
     D_8006C26C->animationFrame = *arg0++;
@@ -762,7 +762,7 @@ void InitializeEntity(u16 *arg0) {
     D_8006C26C->palette = *arg0++;
     temp_v1 = *arg0++;
     D_8006C26C->unk3A = temp_v1;
-    temp_v0 = temp_v1 * sizeof(Unkstruct5) + (u32)D_8003C704;
+    temp_v0 = temp_v1 * sizeof(EnemyData) + (u32)D_8003C704;
     D_8006C26C->unk3E = temp_v0->unk4;
     D_8006C26C->unk40 = temp_v0->unk6;
     D_8006C26C->unk42 = temp_v0->unk8;

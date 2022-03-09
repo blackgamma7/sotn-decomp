@@ -276,7 +276,7 @@ INCLUDE_ASM("asm/st/np3/nonmatchings/3246C", func_801BD150);
 
 void InitializeEntity(u16 *arg0) {
     u16 temp_v1;
-    Unkstruct5 *temp_v0;
+    EnemyData *temp_v0;
 
     D_8006C3B8->animationSet = *arg0++;
     D_8006C3B8->animationFrame = *arg0++;
@@ -284,7 +284,7 @@ void InitializeEntity(u16 *arg0) {
     D_8006C3B8->palette = *arg0++;
     temp_v1 = *arg0++;
     D_8006C3B8->unk3A = temp_v1;
-    temp_v0 = temp_v1 * sizeof(Unkstruct5) + (u32)D_8003C808;
+    temp_v0 = temp_v1 * sizeof(EnemyData) + (u32)D_8003C808;
     D_8006C3B8->unk3E = temp_v0->unk4;
     D_8006C3B8->unk40 = temp_v0->unk6;
     D_8006C3B8->unk42 = temp_v0->unk8;
